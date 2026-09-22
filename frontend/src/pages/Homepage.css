@@ -1,0 +1,12 @@
+.homepage {
+  padding: 16px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .homepage {
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}

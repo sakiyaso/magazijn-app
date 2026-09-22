@@ -1,0 +1,28 @@
+.dashboard {
+  padding: 16px;
+}
+
+.producten-lijst {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-kaart {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+@media (min-width: 768px) {
+  .producten-lijst {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .product-kaart {
+    width: 220px;
+  }
+}
