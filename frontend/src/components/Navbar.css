@@ -10,12 +10,13 @@
   background: linear-gradient(
     100deg,
     var(--vista-teal) 0%,
-    var(--vista-teal) 40%,
-    var(--vista-orange) 44%,
+    var(--vista-teal) 35%,
+    var(--vista-orange) 55%,
     var(--vista-orange) 100%
   );
   overflow: hidden;
   flex-shrink: 0;
+  z-index: 2;
 }
 
 .navbar-inner {
@@ -35,7 +36,7 @@
 }
 
 .navbar-link {
-  color: #fff;
+  color: #cdc7ce;
   text-decoration: none;
   font-weight: 500;
 }
@@ -54,4 +55,5 @@
 
 .navbar-curve path {
   fill: #0f1115; /* zelfde donkere kleur als de hero-achtergrond */
+  
 }

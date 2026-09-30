@@ -4,6 +4,7 @@ import Homepage from './pages/Homepage';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import './App.css';
+import Navbar from './components/Navbar';
 
 function App() {
   const [ingelogd, setIngelogd] = useState(false);
@@ -13,13 +14,9 @@ function App() {
     setIngelogd(true);
   };
 
-  return (
+ return (
     <BrowserRouter>
-      <nav className="navbar">
-        <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        {ingelogd && <Link to="/dashboard">Dashboard</Link>}
-      </nav>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
