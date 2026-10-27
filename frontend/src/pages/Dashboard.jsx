@@ -2,54 +2,41 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
-const STORAGE_KEY = 'voorraadbeheer-items-v2';
-
-function loadStoredItems() {
-  try {
-    const storedItems = window.localStorage.getItem(STORAGE_KEY);
-    return storedItems ? JSON.parse(storedItems) : [];
-  } catch {
-    return [];
-  }
-}
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function getSymbol(name) {
   return name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function Dashboard() {
-  const [items, setItems] = useState(loadStoredItems);
-  const [apiItems, setApiItems] = useState([]);
+function Dashboard({ user, onLogout }) {
+  const [items, setItems] = useState([]);
+  const [apiError, setApiError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [productForm, setProductForm] = useState({ name: '', category: '', quantity: '0', unit: 'stuks' });
-  const loggedUser = window.localStorage.getItem('voorraadbeheer-user');
+  const loggedUser = user.naam;
+  const authHeaders = { Authorization: `Bearer ${user.token}` };
+
+  const loadProducts = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/producten`);
+      if (!response.ok) throw new Error('Producten ophalen is niet gelukt.');
+      const data = await response.json();
+      setItems(data.map((product) => ({
+        id: product.id, name: product.naam, category: product.categorie,
+        quantity: Number(product.aantal), unit: product.eenheid,
+        code: product.code, symbol: product.code || getSymbol(product.naam),
+      })));
+      setApiError('');
+    } catch {
+      setApiError('De database is niet bereikbaar. Start de backend en controleer de database-instellingen.');
+    }
+  };
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/producten')
-      .then((res) => res.json())
-      .then((data) => {
-        if (!Array.isArray(data)) return;
-        setApiItems(data.map((product, index) => {
-          const name = product.naam ?? product.name ?? `Product ${index + 1}`;
-          return {
-            id: `api-${product.id ?? index}`,
-            name,
-            category: product.categorie ?? product.category ?? '',
-            code: product.code ?? '',
-            quantity: Number(product.aantal ?? product.quantity ?? 0),
-            unit: product.eenheid ?? product.unit ?? 'stuks',
-            symbol: product.code || getSymbol(name),
-            readOnly: true,
-          };
-        }));
-      })
-      .catch((err) => console.error(err));
+    const timer = window.setTimeout(loadProducts, 0);
+    return () => window.clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
 
   useEffect(() => {
     if (!selectedItem) return undefined;
@@ -60,7 +47,7 @@ function Dashboard() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [selectedItem]);
 
-  const allItems = [...apiItems, ...items];
+  const allItems = items;
   const normalizedSearch = search.trim().toLowerCase();
   const matchingItems = allItems.filter((item) => (
     `${item.name} ${item.category}`.toLowerCase().includes(normalizedSearch)
@@ -70,56 +57,60 @@ function Dashboard() {
   const availableCount = allItems.filter((item) => item.quantity > 0).length;
   const emptyCount = allItems.filter((item) => item.quantity <= 0).length;
 
-  const handleAddProduct = (event) => {
+  const handleAddProduct = async (event) => {
     event.preventDefault();
-    const name = productForm.name.trim();
-    const category = productForm.category.trim();
-    const unit = productForm.unit.trim();
-    if (!name || !category || !unit) return;
-
-    const nextId = items.reduce((maxId, item) => Math.max(maxId, Number(item.id) || 0), 0) + 1;
-    setItems([...items, {
-      id: nextId,
-      name,
-      category,
-      quantity: Math.max(0, Number.parseInt(productForm.quantity, 10) || 0),
-      unit,
-      symbol: getSymbol(name),
-    }]);
-    setProductForm({ name: '', category: '', quantity: '0', unit: 'stuks' });
+    const product = {
+      naam: productForm.name.trim(), categorie: productForm.category.trim(),
+      aantal: Math.max(0, Number.parseInt(productForm.quantity, 10) || 0),
+      eenheid: productForm.unit.trim(),
+    };
+    if (!product.naam || !product.categorie || !product.eenheid) return;
+    try {
+      const response = await fetch(`${API_URL}/api/producten`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify(product),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Product toevoegen is niet gelukt.');
+      setItems((oldItems) => [...oldItems, { id: data.id, name: data.naam, category: data.categorie, quantity: Number(data.aantal), unit: data.eenheid, code: data.code, symbol: data.code || getSymbol(data.naam) }]);
+      setProductForm({ name: '', category: '', quantity: '0', unit: 'stuks' });
+      setApiError('');
+    } catch (error) { setApiError(error.message); }
   };
 
-  const handleRename = (item) => {
+  const updateProduct = async (item, changes) => {
+    try {
+      const response = await fetch(`${API_URL}/api/producten/${item.id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify(changes),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Opslaan is niet gelukt.');
+      setItems((oldItems) => oldItems.map((storedItem) => storedItem.id === item.id ? {
+        ...storedItem, name: data.naam, category: data.categorie, quantity: Number(data.aantal), unit: data.eenheid, code: data.code, symbol: data.code || getSymbol(data.naam),
+      } : storedItem));
+      setApiError('');
+    } catch (error) { setApiError(error.message); }
+  };
+
+  const handleRename = async (item) => {
     const name = window.prompt('Nieuwe artikelnaam:', item.name);
     if (name === null) return;
     const cleanName = name.trim();
-    if (!cleanName) {
-      window.alert('De artikelnaam mag niet leeg zijn.');
-      return;
-    }
-    setItems(items.map((storedItem) => (
-      storedItem.id === item.id
-        ? { ...storedItem, name: cleanName, symbol: getSymbol(cleanName) }
-        : storedItem
-    )));
+    if (!cleanName) { window.alert('De artikelnaam mag niet leeg zijn.'); return; }
+    await updateProduct(item, { naam: cleanName });
   };
 
-  const handleQuantityChange = (item, change) => {
-    setItems(items.map((storedItem) => (
-      storedItem.id === item.id
-        ? { ...storedItem, quantity: Math.max(0, storedItem.quantity + change) }
-        : storedItem
-    )));
+  const handleQuantityChange = async (item, change) => {
+    await updateProduct(item, { aantal: Math.max(0, item.quantity + change) });
   };
 
-  const handleDelete = () => {
-    setItems(items.filter((item) => item.id !== selectedItem.id));
-    setSelectedItem(null);
-  };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('voorraadbeheer-user');
-    window.location.assign('/login');
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/producten/${selectedItem.id}`, { method: 'DELETE', headers: authHeaders });
+      if (!response.ok) throw new Error('Product verwijderen is niet gelukt.');
+      setItems((oldItems) => oldItems.filter((item) => item.id !== selectedItem.id));
+      setSelectedItem(null);
+      setApiError('');
+    } catch (error) { setApiError(error.message); setSelectedItem(null); }
   };
 
   const renderItem = (item) => (
@@ -128,7 +119,7 @@ function Dashboard() {
       <div className="item-info">
         <div className="item-name-line">
           <strong>{item.name}</strong>
-          {loggedUser && !item.readOnly && (
+          {loggedUser && (
             <button
               className="edit-action"
               type="button"
@@ -146,7 +137,7 @@ function Dashboard() {
         <strong>{item.quantity} {item.unit}</strong>
         <span>{item.quantity > 0 ? 'Beschikbaar' : 'Voorraad op'}</span>
       </div>
-      {!item.readOnly && (
+      {
         <div className="quantity-controls">
           <button
             className="stock-action minus-action"
@@ -170,25 +161,24 @@ function Dashboard() {
             >🗑</button>
           )}
         </div>
-      )}
+      }
     </article>
   );
 
   return (
     <div className="dashboard">
       <header className="topbar">
-        <Link className="brand" to="/">
+        <Link className="brand" to="/dashboard">
           <span className="brand-mark">V</span>
           <span>VistaFlow</span>
         </Link>
         <nav className="nav" aria-label="Hoofdnavigatie">
-          <Link to="/">Home</Link>
           <Link className="active" to="/dashboard">Magazijn</Link>
+          <Link to="/docent/reserveringen">Reserveringen</Link>
         </nav>
         <div className="header-actions">
           <span className="user-label">{loggedUser || 'Demo-overzicht'}</span>
-          {loggedUser && <button className="button button-outline" type="button" onClick={handleLogout}>Uitloggen</button>}
-          {!loggedUser && <Link className="button button-outline top-login" to="/login">Inloggen <span>↗</span></Link>}
+          <button className="button button-outline" type="button" onClick={onLogout}>Uitloggen</button>
         </div>
       </header>
 
@@ -212,9 +202,11 @@ function Dashboard() {
         </section>
 
         <div className="inventory-toolbar">
-          <div><h2>Voorraad overzicht</h2><p>Voeg zelf producten toe en beheer de aantallen met plus en min.</p></div>
+          <div><h2>Voorraad overzicht</h2><p>Beheer producten en voorraad.</p></div>
           <label className="search-box"><span aria-hidden="true">⌕</span><input type="search" placeholder="Zoek een artikel..." value={search} onChange={(event) => setSearch(event.target.value)} /></label>
         </div>
+
+        {apiError && <p className="form-error" role="alert">{apiError}</p>}
 
         <section className="add-product-panel">
           <div><h2>Product toevoegen</h2><p>Begin met een lege voorraad en voeg je eigen producten toe.</p></div>
@@ -240,11 +232,11 @@ function Dashboard() {
           </section>
         </div>
 
-        <p className="inventory-hint"><span>i</span> Na het inloggen kun je namen en aantallen wijzigen. De gegevens worden alleen in deze browser bewaard.</p>
+        <p className="inventory-hint"><span>i</span> Na het inloggen kun je namen en aantallen wijzigen. De gegevens worden opgeslagen in de database.</p>
       </main>
 
       <footer className="footer">
-        <Link className="brand footer-brand" to="/"><span className="brand-mark">V</span><span>VistaFlow</span></Link>
+        <Link className="brand footer-brand" to="/dashboard"><span className="brand-mark">V</span><span>VistaFlow</span></Link>
         <span>Een helder overzicht, elke dag.</span>
         <span>© 2026 VistaFlow</span>
       </footer>

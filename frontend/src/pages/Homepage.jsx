@@ -2,8 +2,6 @@ import './Homepage.css';
 import { Link } from 'react-router-dom';
 
 function Homepage() {
-  const hasSavedUser = Boolean(window.localStorage.getItem('voorraadbeheer-user'));
-
   return (
     <div className="homepage">
       <header className="topbar">
@@ -18,7 +16,6 @@ function Homepage() {
         <Link
           className="button button-outline top-login"
           to="/login"
-          aria-label={hasSavedUser ? 'Inloggen met een bestaand account' : undefined}
         >
           Inloggen <span aria-hidden="true">↗</span>
         </Link>

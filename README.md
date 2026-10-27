@@ -1,16 +1,23 @@
-# React + Vite
+# Magazijn-app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Een voorraadapp met een React-frontend, Node.js-API en MySQL-database. Studenten kunnen artikelen reserveren; docenten beheren de voorraad en bekijken reserveringen.
 
-Currently, two official plugins are available:
+## Benodigd
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js en npm
+- MAMP met MySQL en phpMyAdmin
 
-## React Compiler
+## Lokaal starten
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Start MySQL in MAMP.
+2. Importeer `backend/database/schema.sql` in phpMyAdmin. Voor een bestaande database gebruik je eenmalig `backend/database/migrate-roles-reservations.sql`.
+3. Kopieer `backend/.env.example` naar `backend/.env` en vul je lokale database-instellingen in. Deel `.env` nooit.
+4. Open een terminal in `backend` en voer `npm install` en daarna `npm start` uit.
+5. Open een tweede terminal in `frontend` en voer `npm install` en daarna `npm run dev` uit.
+6. Open de Vite-URL, meestal `http://localhost:5173`.
 
-## Expanding the ESLint configuration
+De API draait op `http://localhost:3000`; de databaseverbinding kun je controleren via `/api/test-db`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Teamwerk
+
+Iedere ontwikkelaar maakt een eigen `backend/.env` en gebruikt lokaal MAMP. De databasegegevens blijven lokaal; deel geen wachtwoorden of `.env`-bestanden. Maak accounts aan via de website. Docentaccounts kunnen lokaal de rol `docent` krijgen in de tabel `accounts`.

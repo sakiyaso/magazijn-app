@@ -286,6 +286,53 @@ body:has(.login-page) .navbar {
   background: #f7f6f3;
 }
 
+.login-page .role-choice .card-heading {
+  margin-bottom: 18px;
+}
+
+.login-page .role-card {
+  width: 100%;
+  min-height: 68px;
+  margin-top: 10px;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-page .role-card:hover,
+.login-page .role-card:focus-visible {
+  border-color: var(--teal);
+  background: #f6faf9;
+}
+
+.login-page .role-card span:last-child {
+  color: var(--coral);
+  font-size: 20px;
+}
+
+.login-page .role-back {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.login-page .role-back:hover {
+  color: var(--teal);
+}
+
 .login-page .footer {
   min-height: 82px;
   padding: 20px max(5.5vw, 24px);

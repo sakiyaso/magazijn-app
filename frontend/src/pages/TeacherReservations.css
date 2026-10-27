@@ -1,0 +1,158 @@
+body:has(.teacher-reservations-page) .navbar {
+  display: none;
+}
+
+.teacher-reservations-main {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 42px 30px 56px;
+}
+
+.teacher-reservations-heading {
+  margin-bottom: 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.teacher-reservations-heading .eyebrow {
+  margin-bottom: 8px;
+}
+
+.teacher-reservations-heading h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.teacher-reservations-heading h1 span {
+  color: var(--coral);
+}
+
+.teacher-reservations-heading .search-box {
+  width: min(300px, 45%);
+}
+
+.teacher-reservations-page .search-box input {
+  background: #fff;
+  color: var(--ink);
+}
+
+.teacher-reservations-list {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.teacher-reservations-row {
+  min-height: 64px;
+  padding: 12px 17px;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(90px, 0.65fr) minmax(160px, 0.9fr);
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.teacher-reservations-row:last-child {
+  border-bottom: 0;
+}
+
+.teacher-reservations-labels {
+  min-height: 42px;
+  background: #fcfcfa;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.teacher-reservation-student strong,
+.teacher-reservation-student span {
+  display: block;
+}
+
+.teacher-reservation-student strong,
+.teacher-reservation-product {
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-reservation-student span {
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+}
+
+.teacher-reservation-amount {
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.teacher-reservations-row time {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.teacher-reservations-empty {
+  margin: 0;
+  padding: 20px 17px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .teacher-reservations-main {
+    padding: 30px 16px;
+  }
+
+  .teacher-reservations-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .teacher-reservations-heading h1 {
+    font-size: 29px;
+  }
+
+  .teacher-reservations-heading .search-box {
+    width: 100%;
+  }
+
+  .teacher-reservations-labels {
+    display: none;
+  }
+
+  .teacher-reservations-row:not(.teacher-reservations-labels) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px 12px;
+  }
+
+  .teacher-reservation-student {
+    grid-column: 1;
+  }
+
+  .teacher-reservation-product {
+    grid-column: 1;
+  }
+
+  .teacher-reservation-amount {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .teacher-reservations-row time {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 10px;
+  }
+}

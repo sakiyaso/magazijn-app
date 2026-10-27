@@ -313,7 +313,15 @@ body:has(.dashboard) .navbar {
   min-width: 0;
   border: 0;
   outline: 0;
+  background: #fff;
+  color: var(--ink);
+  caret-color: var(--ink);
   font-size: 12px;
+}
+
+.dashboard .search-box input::placeholder {
+  color: #727b7b;
+  opacity: 1;
 }
 
 .dashboard .add-product-panel {
@@ -357,7 +365,14 @@ body:has(.dashboard) .navbar {
   border-radius: 6px;
   outline: 0;
   background: #fff;
+  color: var(--ink);
+  caret-color: var(--ink);
   font-size: 12px;
+}
+
+.dashboard .add-product-form input::placeholder {
+  color: #727b7b;
+  opacity: 1;
 }
 
 .dashboard .add-product-form input:focus {
@@ -461,11 +476,15 @@ body:has(.dashboard) .navbar {
   flex: 0 0 42px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border-radius: 8px;
   background: #e8f0ee;
   color: var(--teal);
-  font-size: 12px;
+  font-size: 8px;
   font-weight: 800;
+  letter-spacing: -0.4px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .dashboard .empty-panel .item-symbol {
@@ -488,6 +507,7 @@ body:has(.dashboard) .navbar {
 .dashboard .item-name-line strong {
   min-width: 0;
   overflow: hidden;
+  color: var(--ink);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -770,6 +790,8 @@ body:has(.dashboard) .navbar {
     width: 35px;
     height: 35px;
     flex-basis: 35px;
+    font-size: 7px;
+    letter-spacing: -0.45px;
   }
 
   .dashboard .user-label {
@@ -875,6 +897,8 @@ body:has(.dashboard) .navbar {
     width: 42px;
     height: 42px;
     flex-basis: 42px;
+    font-size: 8px;
+    letter-spacing: -0.4px;
   }
 
   .dashboard .add-product-panel {
