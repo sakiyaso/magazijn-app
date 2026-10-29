@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import './StudentReservations.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
-function StudentReservations({ user, onLogout }) {
+function StudentReservations({ user }) {
   const [products, setProducts] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -67,18 +66,6 @@ function StudentReservations({ user, onLogout }) {
 
   return (
     <div className="dashboard reservation-page">
-      <header className="topbar">
-        <Link className="brand" to="/reserveren">
-          <span className="brand-mark">V</span><span>VistaFlow</span>
-        </Link>
-        <nav className="nav" aria-label="Hoofdnavigatie">
-          <Link className="active" to="/reserveren">Reserveren</Link>
-        </nav>
-        <div className="header-actions">
-          <span className="user-label">{user.naam}</span>
-          <button className="button button-outline" type="button" onClick={onLogout}>Uitloggen</button>
-        </div>
-      </header>
 
       <main className="reservation-main">
         <div className="reservation-heading">

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 function getSymbol(name) {
   return name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function Dashboard({ user, onLogout }) {
+function Dashboard({ user }) {
   const [items, setItems] = useState([]);
   const [apiError, setApiError] = useState('');
   const [search, setSearch] = useState('');
@@ -167,20 +167,6 @@ function Dashboard({ user, onLogout }) {
 
   return (
     <div className="dashboard">
-      <header className="topbar">
-        <Link className="brand" to="/dashboard">
-          <span className="brand-mark">V</span>
-          <span>VistaFlow</span>
-        </Link>
-        <nav className="nav" aria-label="Hoofdnavigatie">
-          <Link className="active" to="/dashboard">Magazijn</Link>
-          <Link to="/docent/reserveringen">Reserveringen</Link>
-        </nav>
-        <div className="header-actions">
-          <span className="user-label">{loggedUser || 'Demo-overzicht'}</span>
-          <button className="button button-outline" type="button" onClick={onLogout}>Uitloggen</button>
-        </div>
-      </header>
 
       <main className="inventory-main">
         <div className="page-heading">

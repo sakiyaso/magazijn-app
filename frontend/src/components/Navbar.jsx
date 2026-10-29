@@ -1,18 +1,50 @@
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './Navbar.css';
 
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="navbar-inner">
-        <span className="navbar-logo">VistaFlow</span>
-        <Link to="/login" className="navbar-link">Login</Link>
-      </div>
+const LINKS = {
+  docent: [
+    { to: '/dashboard', label: 'Magazijn' },
+    { to: '/docent/reserveringen', label: 'Reserveringen' },
+  ],
+  student: [
+    { to: '/reserveren', label: 'Reserveren' },
+  ],
+  gast: [
+    { to: '/', label: 'Home', end: true },
+    { to: '/dashboard', label: 'Magazijn' },
+  ],
+};
 
-      <svg className="navbar-curve" viewBox="0 0 1440 24" preserveAspectRatio="none">
-        <path d="M0,8 C480,24 960,0 1440,12 L1440,24 L0,24 Z" />
-      </svg>
-    </nav>
+function Navbar({ user, onLogout }) {
+  const links = LINKS[user?.rol] || LINKS.gast;
+  const home = !user ? '/' : user.rol === 'docent' ? '/dashboard' : '/reserveren';
+
+  return (
+    <header className="topbar">
+      <Link className="brand" to={home}>
+        <span className="brand-mark">V</span>
+        <span>VistaFlow</span>
+      </Link>
+      <nav className="nav" aria-label="Hoofdnavigatie">
+        {links.map((link) => (
+          <NavLink key={link.to} to={link.to} end={link.end}>
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+      {user ? (
+        <div className="header-actions">
+          <span className="user-label">{user.naam}</span>
+          <button className="button button-outline" type="button" onClick={onLogout}>
+            Uitloggen
+          </button>
+        </div>
+      ) : (
+        <Link className="button button-outline top-login" to="/login">
+          Inloggen <span aria-hidden="true">↗</span>
+        </Link>
+      )}
+    </header>
   );
 }
 

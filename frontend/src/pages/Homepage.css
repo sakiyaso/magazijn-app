@@ -24,10 +24,6 @@
   line-height: 1.5;
 }
 
-body:has(.homepage) .navbar {
-  display: none;
-}
-
 .homepage a {
   color: inherit;
   text-decoration: none;
@@ -434,6 +430,38 @@ body:has(.homepage) .navbar {
   height: 28px;
   border-radius: 7px;
   font-size: 14px;
+}
+
+.homepage .hero-qr {
+  margin-top: 40px;
+}
+
+.homepage .hero-qr h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.homepage .qr-codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.homepage .login-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.homepage .login-qr img {
+  width: 140px;
+  height: 140px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #fff;
 }
 
 @media (max-width: 850px) {

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2330 425" width="2330" height="425">
+<!-- VISTA -->
+<g fill="#EC6755">
+<path d="M1,0H78L110,75H24Z M328,0H400L386,75H300Z M41,121H127L205,340L283,121H368L266,400Q260,425 233,425H178Q151,425 143,400Z"/>
+<g transform="translate(509,0)">
+<path d="M0,0H85V75H0Z"/>
+<path d="M0,121H85V350H177V400Q177,425 152,425H-66Q-91,425 -91,400V350H0Z"/>
+</g>
+<g transform="translate(736,0)">
+<path d="M5,75C40,5 110,-3 160,0C230,4 280,30 322,90L268,123C240,95 220,75 128,75Z"/>
+<path d="M0,121H93C100,150 115,165 200,190C300,218 330,250 330,305H238C235,280 215,265 150,247C60,222 0,185 0,121Z"/>
+<path d="M5,335L58,303C75,293 92,300 100,310C125,340 145,350 200,350H323C300,410 240,427 178,427C110,427 50,405 5,335Z"/>
+</g>
+<g transform="translate(1109,0)">
+<path d="M0,0H269V75H0Z"/>
+<path d="M92,75H177V305H92Z"/>
+<path d="M92,350H177V425H92Z"/>
+</g>
+<g transform="translate(1428,0)">
+<path d="M0,305L102,25Q107,0 137,0H192Q222,0 227,25L327,305H242L164,85L85,305Z"/>
+<path d="M-16,350H69L42,425H-44Z"/>
+<path d="M259,350H344L372,425H286Z"/>
+</g>
+</g>
+<!-- FLOW, kept separate -->
+<text transform="translate(1900,255) scale(0.6)" x="0" y="220" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="240" letter-spacing="4" fill="#1A8C8C">FLOW</text>
+</svg>

@@ -1,25 +1,10 @@
 import './Homepage.css';
 import { Link } from 'react-router-dom';
+import LoginQr from '../components/LoginQr';
 
 function Homepage() {
   return (
     <div className="homepage">
-      <header className="topbar">
-        <Link className="brand" to="/">
-          <span className="brand-mark">V</span>
-          <span>VistaFlow</span>
-        </Link>
-        <nav className="nav" aria-label="Hoofdnavigatie">
-          <Link className="active" to="/">Home</Link>
-          <Link to="/dashboard">Magazijn</Link>
-        </nav>
-        <Link
-          className="button button-outline top-login"
-          to="/login"
-        >
-          Inloggen <span aria-hidden="true">↗</span>
-        </Link>
-      </header>
 
       <main>
         <section className="hero">
@@ -34,6 +19,13 @@ function Homepage() {
             <div className="hero-stats">
               <div><strong>01</strong><span>Één duidelijk overzicht</span></div>
               <div><strong>02</strong><span>Snel voorraad controleren</span></div>
+            </div>
+            <div className="hero-qr">
+              <h2>Scan om in te loggen</h2>
+              <div className="qr-codes">
+                <LoginQr rol="student" label="Student" />
+                <LoginQr rol="docent" label="Docent" />
+              </div>
             </div>
           </div>
           <div className="hero-visual">

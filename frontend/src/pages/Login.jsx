@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Login.css';
+import LoginQr from '../components/LoginQr';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 function Login({ onLogin }) {
-  const [role, setRole] = useState('');
+  const [searchParams] = useSearchParams();
+  const roleFromUrl = searchParams.get('rol');
+  const [role, setRole] = useState(roleFromUrl === 'student' || roleFromUrl === 'docent' ? roleFromUrl : '');
   const [accountMode, setAccountMode] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,15 +44,6 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-page">
-      <header className="topbar">
-        <Link className="brand" to="/">
-          <span className="brand-mark">V</span>
-          <span>VistaFlow</span>
-        </Link>
-        <nav className="nav" aria-label="Hoofdnavigatie">
-          <Link to="/">Home</Link>
-        </nav>
-      </header>
 
       <main className="login-layout">
         <section className="login-intro">
@@ -65,12 +59,18 @@ function Login({ onLogin }) {
                 <span className="card-kicker">INLOGGEN</span>
                 <h2>Kies je rol</h2>
               </div>
-              <button className="role-card" type="button" onClick={() => setRole('student')}>
-                <span>Student</span><span aria-hidden="true">→</span>
-              </button>
-              <button className="role-card" type="button" onClick={() => setRole('docent')}>
-                <span>Docent</span><span aria-hidden="true">→</span>
-              </button>
+              <div className="role-option">
+                <button className="role-card" type="button" onClick={() => setRole('student')}>
+                  <span>Student</span><span aria-hidden="true">→</span>
+                </button>
+                <LoginQr rol="student" label="Scan als student" />
+              </div>
+              <div className="role-option">
+                <button className="role-card" type="button" onClick={() => setRole('docent')}>
+                  <span>Docent</span><span aria-hidden="true">→</span>
+                </button>
+                <LoginQr rol="docent" label="Scan als docent" />
+              </div>
             </div>
           ) : (
             <>

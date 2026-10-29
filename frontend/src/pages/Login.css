@@ -21,10 +21,6 @@
   line-height: 1.5;
 }
 
-body:has(.login-page) .navbar {
-  display: none;
-}
-
 .login-page a {
   color: inherit;
   text-decoration: none;
@@ -129,14 +125,14 @@ body:has(.login-page) .navbar {
 
 .login-page .login-layout {
   width: 100%;
-  max-width: 1120px;
+  max-width: 800px;
   min-height: calc(100vh - 168px);
   margin: auto;
   padding: 65px 30px 70px;
   display: grid;
-  grid-template-columns: 1fr 0.8fr;
+  grid-template-columns: 1fr 420px;
   align-items: center;
-  gap: 12%;
+  gap:12%;
   flex: 1;
 }
 
@@ -185,6 +181,7 @@ body:has(.login-page) .navbar {
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 16px 45px #242d2910;
+  justify-self: end;
 }
 
 .login-page .card-heading {
@@ -316,6 +313,46 @@ body:has(.login-page) .navbar {
 .login-page .role-card span:last-child {
   color: var(--coral);
   font-size: 20px;
+}
+
+/* Rolkaart met knop en QR-code samen in één kader */
+.login-page .role-option {
+  margin-top: 10px;
+  padding: 10px 14px 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+}
+
+.login-page .role-option:hover,
+.login-page .role-option:focus-within {
+  border-color: var(--teal);
+  background: #f6faf9;
+}
+
+.login-page .role-option .role-card {
+  flex: 1;
+  align-self: stretch;
+  margin-top: 0;
+  border: 0;
+  background: transparent;
+}
+
+.login-page .login-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.login-page .login-qr img {
+  width: 96px;
+  height: 96px;
 }
 
 .login-page .role-back {

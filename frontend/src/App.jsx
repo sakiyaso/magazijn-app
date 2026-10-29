@@ -28,7 +28,7 @@ function App() {
   const handleLogout = async () => {
     if (user?.token) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/accounts/logout`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/api/accounts/logout`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${user.token}` },
         });
@@ -43,7 +43,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar user={user} onLogout={handleLogout} />
       <Routes>
         <Route
           path="/"
@@ -55,19 +55,19 @@ function App() {
         <Route
           path="/dashboard"
           element={user?.rol === 'docent'
-            ? <Dashboard user={user} onLogout={handleLogout} />
+            ? <Dashboard user={user} />
             : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
         />
         <Route
           path="/reserveren"
           element={user?.rol === 'student'
-            ? <StudentReservations user={user} onLogout={handleLogout} />
+            ? <StudentReservations user={user} />
             : <Navigate to={user?.rol === 'docent' ? '/dashboard' : '/login'} replace />}
         />
         <Route
           path="/docent/reserveringen"
           element={user?.rol === 'docent'
-            ? <TeacherReservations user={user} onLogout={handleLogout} />
+            ? <TeacherReservations user={user} />
             : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
         />
       </Routes>
