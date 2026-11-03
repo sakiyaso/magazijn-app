@@ -1,7 +1,3 @@
-body:has(.reservation-page) .navbar {
-  display: none;
-}
-
 .reservation-main {
   width: 100%;
   max-width: 960px;

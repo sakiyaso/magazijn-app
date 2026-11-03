@@ -7,6 +7,7 @@ import StudentReservations from './pages/StudentReservations';
 import TeacherReservations from './pages/TeacherReservations';
 import './App.css';
 import Navbar from './components/Navbar';
+import QrApprove from './pages/QrApprove';
 
 function getSavedUser() {
   try {
@@ -69,6 +70,10 @@ function App() {
           element={user?.rol === 'docent'
             ? <TeacherReservations user={user} />
             : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
+        />
+        <Route
+          path="/qr-login/:id"
+          element={<QrApprove user={user} />}
         />
       </Routes>
     </BrowserRouter>

@@ -40,6 +40,10 @@ function Login({ onLogin }) {
     } catch (submitError) {
       setError(submitError.message || 'De server is niet bereikbaar.');
     }
+      const next = searchParams.get('next');
+      const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : null;
+      onLogin(data);
+      navigate(safeNext || (data.rol === 'docent' ? '/dashboard' : '/reserveren'));
   };
 
   return (
@@ -63,13 +67,13 @@ function Login({ onLogin }) {
                 <button className="role-card" type="button" onClick={() => setRole('student')}>
                   <span>Student</span><span aria-hidden="true">→</span>
                 </button>
-                <LoginQr rol="student" label="Scan als student" />
+                <LoginQr rol="student" label="Scan als student" onLogin={onLogin} />
               </div>
               <div className="role-option">
                 <button className="role-card" type="button" onClick={() => setRole('docent')}>
                   <span>Docent</span><span aria-hidden="true">→</span>
                 </button>
-                <LoginQr rol="docent" label="Scan als docent" />
+                <LoginQr rol="docent" label="Scan als docent" onLogin={onLogin} />
               </div>
             </div>
           ) : (

@@ -22,10 +22,6 @@
   line-height: 1.5;
 }
 
-body:has(.dashboard) .navbar {
-  display: none;
-}
-
 .dashboard a {
   color: inherit;
   text-decoration: none;

@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const mysql = require('mysql2/promise');
 const crypto = require('crypto');
 const { promisify } = require('util');
+const qrLogins = new Map();
+const QR_TTL = 2 * 60 * 1000;
 
 dotenv.config();
 const app = express();
@@ -250,6 +252,41 @@ app.post('/api/reserveringen', requireSession('student'), async (req, res) => {
   } finally {
     connection.release();
   }
+});
+
+app.post('/api/qr-login/start', (req, res) => {
+  const rol = req.body?.rol;
+  if (!['student', 'docent'].includes(rol)) return res.status(400).json({ error: 'Ongeldige rol.' });
+  const id = crypto.randomBytes(32).toString('hex');
+  qrLogins.set(id, { rol, status: 'pending', expires: Date.now() + QR_TTL });
+  res.json({ id });
+});
+
+app.get ('/api/qr-login/status/:id', (req, res) => {
+  const entry = qrLogins.get(req.params.id);
+  if (!entry || entry.expires < Date.now()) {
+    qrLogins.delete(req.params.id);
+    return res.status(404).json({ error: 'QR-code is verlopen of ongeldig.' });
+  }
+  if (entry.status !== 'approved') return res.json({ status: 'pending', rol: entry.rol });
+  qrLogins.delete(req.params.id); // Clean up after approval
+  res.json({ status: 'approved', ...entry.session });
+});
+
+app.post('/api/qr-login/approve/:id', requireSession(), (req, res) => {
+  const entry = qrLogins.get(req.params.id);
+  if (!entry || entry.expires < Date.now() || entry.status !== 'pending') {
+    qrLogins.delete(req.params.id);
+    return res.status(404).json({ error: 'QR-code is verlopen of ongeldig.' });
+  }
+  if (req.account.rol !== entry.rol) {
+    return res.status(403).json({ error: 'Toegang geweigerd.' });
+  }
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions.set(token, req.account);
+  entry.status = 'approved';
+  entry.session = { ...req.account, token };
+  res.json({ ok: true });
 });
 
 const PORT = Number(process.env.PORT) || 3000;
