@@ -231,7 +231,7 @@
   padding: 22px 23px 17px;
   overflow: hidden;
   border-radius: 16px;
-  background: var(--coral);
+  background: var(--teal);
   box-shadow: 0 22px 50px #ef624c20;
 }
 
@@ -457,8 +457,8 @@
 }
 
 .homepage .login-qr img {
-  width: 140px;
-  height: 140px;
+  width: 500px;
+  height: 500px;
   padding: 8px;
   border-radius: 8px;
   background: #fff;
@@ -491,6 +491,15 @@
   .homepage .topbar {
     gap: 8px;
     padding: 0 14px;
+  }
+
+  .homepage .login-qr img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--teal);
   }
 
   .homepage .brand {
@@ -551,14 +560,5 @@
 
   .homepage .feature p {
     max-width: 100%;
-  }
-
-  .homepage .footer {
-    padding: 20px 22px;
-    flex-wrap: wrap;
-  }
-
-  .homepage .footer > span:nth-child(2) {
-    display: none;
   }
 }

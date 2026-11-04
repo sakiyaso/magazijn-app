@@ -1,5 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import './Navbar.css';
+import NotificationBell from './NotificationBell';
+import vistaflowLogo from '../assets/vistaflow_combined_bold.svg';
 
 const LINKS = {
   docent: [
@@ -22,8 +24,7 @@ function Navbar({ user, onLogout }) {
   return (
     <header className="topbar">
       <Link className="brand" to={home}>
-        <span className="brand-mark">V</span>
-        <span>VistaFlow</span>
+        <img className="brand-logo" src={vistaflowLogo} alt="VistaFlow" />
       </Link>
       <nav className="nav" aria-label="Hoofdnavigatie">
         {links.map((link) => (
@@ -34,6 +35,7 @@ function Navbar({ user, onLogout }) {
       </nav>
       {user ? (
         <div className="header-actions">
+          {user.rol === 'docent' && <NotificationBell key={user.token} user={user} />}
           <span className="user-label">{user.naam}</span>
           <button className="button button-outline" type="button" onClick={onLogout}>
             Uitloggen

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import './Dashboard.css';
 import './TeacherReservations.css';
+import { NEW_RESERVATION_EVENT } from '../components/reservationNotifications';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -26,6 +27,12 @@ function TeacherReservations({ user }) {
   useEffect(() => {
     const timer = window.setTimeout(loadReservations, 0);
     return () => window.clearTimeout(timer);
+  }, [loadReservations]);
+
+  // Lijst verversen zodra er een nieuwe reservering binnenkomt
+  useEffect(() => {
+    window.addEventListener(NEW_RESERVATION_EVENT, loadReservations);
+    return () => window.removeEventListener(NEW_RESERVATION_EVENT, loadReservations);
   }, [loadReservations]);
 
   const matchingReservations = reservations.filter((reservation) => (

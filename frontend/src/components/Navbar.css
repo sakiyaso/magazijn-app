@@ -44,21 +44,15 @@
   display: inline-flex;
   align-items: center;
   gap: 11px;
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
 }
 
-.topbar .brand-mark {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: var(--teal);
-  color: #fff;
-  font-size: 17px;
-  font-weight: 800;
+.topbar .brand-logo {
+  display: block;
+  height: 30px;
+  width: auto;
 }
 
 .topbar .nav {
@@ -151,13 +145,17 @@
   }
 
   .topbar .brand {
-    gap: 6px;
-    font-size: 14px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
-  .topbar .brand-mark {
-    width: 28px;
-    height: 28px;
+  .topbar .brand-logo {
+    height: 20px;
+    max-width: 100%;
+  }
+
+  .topbar .top-login span{
+    display: none;
   }
 
   .topbar .nav {

@@ -7,7 +7,9 @@ import StudentReservations from './pages/StudentReservations';
 import TeacherReservations from './pages/TeacherReservations';
 import './App.css';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import QrApprove from './pages/QrApprove';
+import ReservationNotifier from './components/ReservationNotifier';
 
 function getSavedUser() {
   try {
@@ -45,37 +47,41 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar user={user} onLogout={handleLogout} />
-      <Routes>
-        <Route
-          path="/"
-          element={user
-            ? <Navigate to={user.rol === 'docent' ? '/dashboard' : '/reserveren'} replace />
-            : <Homepage />}
-        />
-        <Route path="/login" element={user ? <Navigate to={user.rol === 'docent' ? '/dashboard' : '/reserveren'} replace /> : <Login onLogin={handleLogin} />} />
-        <Route
-          path="/dashboard"
-          element={user?.rol === 'docent'
-            ? <Dashboard user={user} />
-            : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
-        />
-        <Route
-          path="/reserveren"
-          element={user?.rol === 'student'
-            ? <StudentReservations user={user} />
-            : <Navigate to={user?.rol === 'docent' ? '/dashboard' : '/login'} replace />}
-        />
-        <Route
-          path="/docent/reserveringen"
-          element={user?.rol === 'docent'
-            ? <TeacherReservations user={user} />
-            : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
-        />
-        <Route
-          path="/qr-login/:id"
-          element={<QrApprove user={user} />}
-        />
-      </Routes>
+      {user?.rol === 'docent' && <ReservationNotifier key={user.token} token={user.token} />}
+      <div className="app-page">
+        <Routes>
+          <Route
+            path="/"
+            element={user
+              ? <Navigate to={user.rol === 'docent' ? '/dashboard' : '/reserveren'} replace />
+              : <Homepage />}
+          />
+          <Route path="/login" element={user ? <Navigate to={user.rol === 'docent' ? '/dashboard' : '/reserveren'} replace /> : <Login onLogin={handleLogin} />} />
+          <Route
+            path="/dashboard"
+            element={user?.rol === 'docent'
+              ? <Dashboard user={user} />
+              : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
+          />
+          <Route
+            path="/reserveren"
+            element={user?.rol === 'student'
+              ? <StudentReservations user={user} />
+              : <Navigate to={user?.rol === 'docent' ? '/dashboard' : '/login'} replace />}
+          />
+          <Route
+            path="/docent/reserveringen"
+            element={user?.rol === 'docent'
+              ? <TeacherReservations user={user} />
+              : <Navigate to={user?.rol === 'student' ? '/reserveren' : '/login'} replace />}
+          />
+          <Route
+            path="/qr-login/:id"
+            element={<QrApprove user={user} />}
+          />
+        </Routes>
+      </div>
+      <Footer user={user} />
     </BrowserRouter>
   );
 }

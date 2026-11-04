@@ -190,3 +190,9 @@
   color: inherit;
   font-weight: 500;
 }
+
+.app-page {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}

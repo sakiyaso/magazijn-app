@@ -495,4 +495,34 @@
   .account-mode .login-card {
     padding: 25px 22px;
   }
+
+  .login-page .qr-alternative {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .login-page .qr-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .login-page .qr-divider::before,
+  .login-page .qr-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .login-page .qr-alternative .login-qr img {
+    width: 140px;
+    height: 140px;
+  }
 }

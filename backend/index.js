@@ -182,7 +182,10 @@ app.post('/api/accounts/logout', requireSession(), (req, res) => {
   res.status(204).end();
 });
 
-app.get('/api/docent/reserveringen', requireSession('docent'), async (_req, res) => {
+app.get('/api/docent/reserveringen', requireSession('docent'), async (req, res) => {
+  // Optioneel ?limit=20 voor het meldingenoverzicht; gevalideerd, dus veilig in de query
+  const limit = Number(req.query.limit);
+  const limitSql = Number.isInteger(limit) && limit > 0 && limit <= 100 ? ` LIMIT ${limit}` : '';
   try {
     const [rows] = await pool.query(
       `SELECT reserveringen.id, reserveringen.product_naam, reserveringen.aantal,
@@ -190,12 +193,38 @@ app.get('/api/docent/reserveringen', requireSession('docent'), async (_req, res)
         accounts.naam AS student_naam, accounts.email AS student_email
        FROM reserveringen
        INNER JOIN accounts ON accounts.id = reserveringen.account_id
-       ORDER BY reserveringen.aangemaakt_op DESC, reserveringen.id DESC`
+       ORDER BY reserveringen.aangemaakt_op DESC, reserveringen.id DESC${limitSql}`
     );
     res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Reserveringen konden niet worden opgehaald.' });
+  }
+});
+
+// Nieuwe reserveringen sinds een bepaald id, voor meldingen bij docenten.
+// Zonder ?na= wordt alleen het laatste id teruggegeven, zodat oude reserveringen geen melding geven.
+app.get('/api/docent/reserveringen/nieuw', requireSession('docent'), async (req, res) => {
+  const na = Number(req.query.na);
+  try {
+    if (!Number.isInteger(na) || na < 0) {
+      const [[row]] = await pool.query('SELECT COALESCE(MAX(id), 0) AS laatste_id FROM reserveringen');
+      return res.json({ laatste_id: row.laatste_id, reserveringen: [] });
+    }
+    const [rows] = await pool.execute(
+      `SELECT reserveringen.id, reserveringen.product_naam, reserveringen.aantal,
+        reserveringen.eenheid, reserveringen.aangemaakt_op, accounts.naam AS student_naam
+       FROM reserveringen
+       INNER JOIN accounts ON accounts.id = reserveringen.account_id
+       WHERE reserveringen.id > ?
+       ORDER BY reserveringen.id ASC
+       LIMIT 20`,
+      [na]
+    );
+    res.json({ laatste_id: rows.length ? rows[rows.length - 1].id : na, reserveringen: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Nieuwe reserveringen konden niet worden opgehaald.' });
   }
 });
 

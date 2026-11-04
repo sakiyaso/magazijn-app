@@ -35,15 +35,13 @@ function Login({ onLogin }) {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Inloggen is niet gelukt.');
-      onLogin(data);
-      navigate(data.rol === 'docent' ? '/dashboard' : '/reserveren');
-    } catch (submitError) {
-      setError(submitError.message || 'De server is niet bereikbaar.');
-    }
       const next = searchParams.get('next');
       const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : null;
       onLogin(data);
       navigate(safeNext || (data.rol === 'docent' ? '/dashboard' : '/reserveren'));
+    } catch (submitError) {
+      setError(submitError.message || 'De server is niet bereikbaar.');
+    }
   };
 
   return (
@@ -67,13 +65,11 @@ function Login({ onLogin }) {
                 <button className="role-card" type="button" onClick={() => setRole('student')}>
                   <span>Student</span><span aria-hidden="true">→</span>
                 </button>
-                <LoginQr rol="student" label="Scan als student" onLogin={onLogin} />
               </div>
               <div className="role-option">
                 <button className="role-card" type="button" onClick={() => setRole('docent')}>
                   <span>Docent</span><span aria-hidden="true">→</span>
                 </button>
-                <LoginQr rol="docent" label="Scan als docent" onLogin={onLogin} />
               </div>
             </div>
           ) : (
@@ -105,6 +101,17 @@ function Login({ onLogin }) {
                   {accountMode ? 'Account maken' : 'Inloggen'} <span>→</span>
                 </button>
               </form>
+              {!accountMode && (
+                <div className="qr-alternative">
+                  <div className="qr-divider"><br></br></div>
+                  <LoginQr
+                    key={role}
+                    rol={role}
+                    label={`Scan als ${role}`}
+                    onLogin={onLogin}
+                  />
+                </div>
+              )}
               <button className="button button-outline button-full create-account-link" type="button" onClick={() => {
                 setAccountMode(!accountMode);
                 setError('');

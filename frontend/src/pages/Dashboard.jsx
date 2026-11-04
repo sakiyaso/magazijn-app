@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
+import { NEW_RESERVATION_EVENT } from '../components/reservationNotifications';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -35,7 +36,12 @@ function Dashboard({ user }) {
 
   useEffect(() => {
     const timer = window.setTimeout(loadProducts, 0);
-    return () => window.clearTimeout(timer);
+    // Voorraad verversen zodra een student iets reserveert
+    window.addEventListener(NEW_RESERVATION_EVENT, loadProducts);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(NEW_RESERVATION_EVENT, loadProducts);
+    };
   }, []);
 
   useEffect(() => {
@@ -220,12 +226,6 @@ function Dashboard({ user }) {
 
         <p className="inventory-hint"><span>i</span> Na het inloggen kun je namen en aantallen wijzigen. De gegevens worden opgeslagen in de database.</p>
       </main>
-
-      <footer className="footer">
-        <Link className="brand footer-brand" to="/dashboard"><span className="brand-mark">V</span><span>VistaFlow</span></Link>
-        <span>Een helder overzicht, elke dag.</span>
-        <span>© 2026 VistaFlow</span>
-      </footer>
 
       {selectedItem && (
         <div className="delete-modal" role="presentation" onMouseDown={(event) => {

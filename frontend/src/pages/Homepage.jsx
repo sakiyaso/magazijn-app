@@ -1,6 +1,7 @@
 import './Homepage.css';
 import { Link } from 'react-router-dom';
 import LoginQr from '../components/LoginQr';
+import LinkQr from '../components/LinkQr';
 
 function Homepage() {
   return (
@@ -20,35 +21,9 @@ function Homepage() {
               <div><strong>01</strong><span>Één duidelijk overzicht</span></div>
               <div><strong>02</strong><span>Snel voorraad controleren</span></div>
             </div>
-            <div className="hero-qr">
-              <h2>Scan om in te loggen</h2>
-              <div className="qr-codes">
-                <LoginQr rol="student" label="Student" />
-                <LoginQr rol="docent" label="Docent" />
-              </div>
-            </div>
           </div>
           <div className="hero-visual">
-            <div className="visual-top">
-              <span>MAGAZIJN STATUS</span>
-              <span className="status-pill"><i /> Live overzicht</span>
-            </div>
-            <div className="warehouse-illustration" aria-hidden="true">
-              <div className="shelf shelf-one">
-                <div className="shelf-line" /><div className="crate coral" /><div className="crate cream" />
-                <div className="crate teal" /><div className="crate coral small" /><div className="shelf-line" />
-              </div>
-              <div className="shelf shelf-two">
-                <div className="shelf-line" /><div className="crate cream" /><div className="crate teal" />
-                <div className="crate coral" /><div className="crate cream small" /><div className="shelf-line" />
-              </div>
-              <div className="floor-line" />
-            </div>
-            <div className="visual-bottom">
-              <div><span className="legend-dot in-stock" /><span>Op voorraad</span></div>
-              <div><span className="legend-dot low-stock" /><span>Aanvullen nodig</span></div>
-              <Link to="/dashboard">Open voorraad <span>↗</span></Link>
-            </div>
+            <LinkQr to="/" />
           </div>
         </section>
 
@@ -70,15 +45,6 @@ function Homepage() {
           </article>
         </section>
       </main>
-
-      <footer className="footer">
-        <Link className="brand footer-brand" to="/">
-          <span className="brand-mark">V</span>
-          <span>VistaFlow</span>
-        </Link>
-        <span>Een helder overzicht, elke dag.</span>
-        <span>© 2026 VistaFlow</span>
-      </footer>
     </div>
   );
 }
