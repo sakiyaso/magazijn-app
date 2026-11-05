@@ -48,7 +48,7 @@
   min-height: 64px;
   padding: 12px 17px;
   display: grid;
-  grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(90px, 0.65fr) minmax(160px, 0.9fr);
+  grid-template-columns: minmax(160px, 1.2fr) minmax(120px, 1fr) minmax(70px, 0.45fr) minmax(130px, 0.75fr) minmax(250px, 1.2fr);
   align-items: center;
   gap: 16px;
   border-bottom: 1px solid var(--line);
@@ -106,7 +106,118 @@
   font-size: 12px;
 }
 
-@media (max-width: 700px) {
+.teacher-reservations-page .form-error {
+  margin: 0 0 14px;
+  color: var(--coral-dark, #dc503c);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.teacher-reservations-toolbar {
+  margin-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.teacher-reservations-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.teacher-reservations-page .teacher-reservations-clear {
+  min-height: 32px;
+  padding: 6px 11px;
+  font-size: 11px;
+}
+
+.teacher-reservations-page .teacher-reservations-clear:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.teacher-reservations-filters button {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-reservations-filters button span {
+  margin-left: 3px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.teacher-reservations-filters button:hover {
+  border-color: var(--teal);
+}
+
+.teacher-reservations-filters button.is-active {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+.teacher-reservations-filters button.is-active span {
+  color: #fff;
+}
+
+.teacher-reservation-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.status-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-gereserveerd {
+  color: var(--muted);
+}
+
+.status-in_gebruik {
+  color: var(--coral);
+}
+
+.status-ingeleverd {
+  color: var(--teal);
+}
+
+.status-geannuleerd {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.teacher-reservation-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.teacher-reservations-page .teacher-reservation-status .button {
+  min-height: 32px;
+  padding: 6px 11px;
+  font-size: 11px;
+}
+
+.teacher-reservations-page .teacher-reservation-status .button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Vijf kolommen passen niet meer onder deze breedte */
+@media (max-width: 960px) {
   .teacher-reservations-main {
     padding: 30px 16px;
   }
@@ -150,5 +261,9 @@
     grid-column: 2;
     grid-row: 2;
     font-size: 10px;
+  }
+
+  .teacher-reservation-status {
+    grid-column: 1 / -1;
   }
 }

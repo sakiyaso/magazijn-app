@@ -160,6 +160,25 @@
   white-space: nowrap;
 }
 
+.my-reservation-actions {
+  padding: 6px 0;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.reservation-page .my-reservation-actions .button {
+  min-height: 30px;
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.reservation-page .my-reservation-actions .button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 620px) {
   .reservation-main {
     padding: 30px 16px;

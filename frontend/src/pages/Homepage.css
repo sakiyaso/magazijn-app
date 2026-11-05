@@ -6,6 +6,7 @@
 .homepage {
   --coral: #ef624c;
   --coral-dark: #dc503c;
+  --coral-light: #f2ad9e;
   --teal: #00585c;
   --teal-dark: #00474b;
   --ink: #151b1b;
@@ -17,8 +18,9 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  color: var(--ink);
+  background: #0e0d0d;
+  background-image: url("../assets/magazijn.jpg");
+  background-size: cover;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
   font-size: 15px;
   line-height: 1.5;
@@ -37,7 +39,7 @@
   justify-content: space-between;
   gap: 24px;
   border-bottom: 1px solid #f0f0ed;
-  background: #fff;
+  background: var(--teal);
 }
 
 .homepage .brand {
@@ -168,7 +170,7 @@
 
 .homepage .hero h1 {
   margin: 0;
-  color: var(--ink);
+  color: var(--teal);
   font-size: 58px;
   font-weight: 760;
   line-height: 1.08;
@@ -380,7 +382,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 6%;
   border-top: 1px solid var(--line);
-  background: var(--soft);
+  background: var(--coral-light);
 }
 
 .homepage .feature {
@@ -457,8 +459,9 @@
 }
 
 .homepage .login-qr img {
-  width: 500px;
-  height: 500px;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
   padding: 8px;
   border-radius: 8px;
   background: #fff;

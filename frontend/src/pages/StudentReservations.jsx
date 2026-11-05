@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import './Dashboard.css';
 import './StudentReservations.css';
+import { STATUS_LABELS } from '../components/reservationStatus';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -11,6 +12,7 @@ function StudentReservations({ user }) {
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [cancellingId, setCancellingId] = useState(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -57,6 +59,28 @@ function StudentReservations({ user }) {
       await loadData();
     } catch (reserveError) {
       setError(reserveError.message);
+    }
+  };
+
+  const handleCancel = async (reservation) => {
+    if (!window.confirm(`Reservering voor ${reservation.aantal} ${reservation.eenheid} ${reservation.product_naam} annuleren?`)) return;
+    setMessage('');
+    setCancellingId(reservation.id);
+    try {
+      const response = await fetch(`${API_URL}/api/reserveringen/${reservation.id}/annuleren`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Annuleren is niet gelukt.');
+      await loadData();
+      setMessage(`Reservering voor ${reservation.product_naam} geannuleerd.`);
+    } catch (cancelError) {
+      // De lijst kan verouderd zijn, bijvoorbeeld als de docent het artikel net heeft uitgegeven
+      await loadData();
+      setError(cancelError.message || 'Annuleren is niet gelukt.');
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -117,8 +141,20 @@ function StudentReservations({ user }) {
             <ul>
               {reservations.map((reservation) => (
                 <li key={reservation.id}>
-                  <span>{reservation.product_naam}</span>
-                  <strong>{reservation.aantal} {reservation.eenheid}</strong>
+                  <span>{reservation.product_naam} · {STATUS_LABELS[reservation.status]}</span>
+                  <div className="my-reservation-actions">
+                    <strong>{reservation.aantal} {reservation.eenheid}</strong>
+                    {reservation.status === 'gereserveerd' && (
+                      <button
+                        className="button button-outline"
+                        type="button"
+                        disabled={cancellingId === reservation.id}
+                        onClick={() => handleCancel(reservation)}
+                      >
+                        Annuleren
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

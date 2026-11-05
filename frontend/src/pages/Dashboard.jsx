@@ -177,7 +177,6 @@ function Dashboard({ user }) {
       <main className="inventory-main">
         <div className="page-heading">
           <div>
-            <p className="eyebrow"><span className="eyebrow-dot" /> VISTAFLOW</p>
             <h1>Het <span>magazijn.</span></h1>
             <p className="page-description">Houd in één oogopslag bij wat beschikbaar is en wat aangevuld moet worden.</p>
           </div>

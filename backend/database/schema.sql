@@ -35,6 +35,19 @@ CREATE TABLE IF NOT EXISTS reserveringen (
   aantal INT UNSIGNED NOT NULL,
   eenheid VARCHAR(20) NOT NULL,
   aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` ENUM('gereserveerd', 'in_gebruik', 'ingeleverd', 'geannuleerd') NOT NULL DEFAULT 'gereserveerd',
+  uitgegeven_op TIMESTAMP NULL DEFAULT NULL,
+  ingeleverd_op TIMESTAMP NULL DEFAULT NULL,
+  geannuleerd_op TIMESTAMP NULL DEFAULT NULL,
   CONSTRAINT fk_reserveringen_account FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-  INDEX idx_reserveringen_account (account_id)
+  INDEX idx_reserveringen_account (account_id),
+  INDEX idx_reserveringen_status (`status`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS verwijderde_meldingen (
+  account_id INT UNSIGNED NOT NULL,
+  reservering_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (account_id, reservering_id),
+  CONSTRAINT fk_verwijderde_meldingen_account FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+  CONSTRAINT fk_verwijderde_meldingen_reservering FOREIGN KEY (reservering_id) REFERENCES reserveringen(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

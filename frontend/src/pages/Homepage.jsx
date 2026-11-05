@@ -1,6 +1,5 @@
 import './Homepage.css';
 import { Link } from 'react-router-dom';
-import LoginQr from '../components/LoginQr';
 import LinkQr from '../components/LinkQr';
 
 function Homepage() {
@@ -10,7 +9,6 @@ function Homepage() {
       <main>
         <section className="hero">
           <div className="hero-copy">
-            <p className="eyebrow"><span className="eyebrow-dot" /> OVERZICHTELIJK VOORRAAD BEHEREN</p>
             <h1>Alles op voorraad.<br /><span>Alles onder controle.</span></h1>
             <p className="hero-text">Een duidelijk overzicht van wat er in het magazijn ligt en welke producten aangevuld moeten worden. Zo weet je meteen waar je aan toe bent.</p>
             <div className="hero-actions">

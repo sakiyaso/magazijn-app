@@ -182,18 +182,16 @@ app.post('/api/accounts/logout', requireSession(), (req, res) => {
   res.status(204).end();
 });
 
-app.get('/api/docent/reserveringen', requireSession('docent'), async (req, res) => {
-  // Optioneel ?limit=20 voor het meldingenoverzicht; gevalideerd, dus veilig in de query
-  const limit = Number(req.query.limit);
-  const limitSql = Number.isInteger(limit) && limit > 0 && limit <= 100 ? ` LIMIT ${limit}` : '';
+app.get('/api/docent/reserveringen', requireSession('docent'), async (_req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT reserveringen.id, reserveringen.product_naam, reserveringen.aantal,
-        reserveringen.eenheid, reserveringen.aangemaakt_op,
+        reserveringen.eenheid, reserveringen.aangemaakt_op, reserveringen.status,
+        reserveringen.uitgegeven_op, reserveringen.ingeleverd_op, reserveringen.geannuleerd_op,
         accounts.naam AS student_naam, accounts.email AS student_email
        FROM reserveringen
        INNER JOIN accounts ON accounts.id = reserveringen.account_id
-       ORDER BY reserveringen.aangemaakt_op DESC, reserveringen.id DESC${limitSql}`
+       ORDER BY reserveringen.aangemaakt_op DESC, reserveringen.id DESC`
     );
     res.json(rows);
   } catch (err) {
@@ -221,17 +219,183 @@ app.get('/api/docent/reserveringen/nieuw', requireSession('docent'), async (req,
        LIMIT 20`,
       [na]
     );
-    res.json({ laatste_id: rows.length ? rows[rows.length - 1].id : na, reserveringen: rows });
+    if (rows.length) return res.json({ laatste_id: rows[rows.length - 1].id, reserveringen: rows });
+    // Na verwijderen en een MySQL-herstart kunnen id's opnieuw gebruikt worden, dus nooit boven het hoogste id blijven
+    const [[row]] = await pool.query('SELECT COALESCE(MAX(id), 0) AS laatste_id FROM reserveringen');
+    res.json({ laatste_id: Math.min(na, row.laatste_id), reserveringen: [] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Nieuwe reserveringen konden niet worden opgehaald.' });
   }
 });
 
+// Meldingen zijn reserveringen; verwijderen verbergt ze alleen voor deze docent.
+app.get('/api/docent/meldingen', requireSession('docent'), async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT reserveringen.id, reserveringen.product_naam, reserveringen.aantal,
+        reserveringen.eenheid, reserveringen.aangemaakt_op, accounts.naam AS student_naam
+       FROM reserveringen
+       INNER JOIN accounts ON accounts.id = reserveringen.account_id
+       WHERE NOT EXISTS (
+         SELECT 1 FROM verwijderde_meldingen
+         WHERE verwijderde_meldingen.reservering_id = reserveringen.id
+           AND verwijderde_meldingen.account_id = ?
+       )
+       ORDER BY reserveringen.id DESC
+       LIMIT 20`,
+      [req.account.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Meldingen konden niet worden opgehaald.' });
+  }
+});
+
+app.delete('/api/docent/meldingen', requireSession('docent'), async (req, res) => {
+  try {
+    await pool.execute(
+      'INSERT IGNORE INTO verwijderde_meldingen (account_id, reservering_id) SELECT ?, id FROM reserveringen',
+      [req.account.id]
+    );
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Meldingen verwijderen is niet gelukt.' });
+  }
+});
+
+app.delete('/api/docent/meldingen/:id', requireSession('docent'), async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Ongeldige melding.' });
+  try {
+    await pool.execute(
+      'INSERT IGNORE INTO verwijderde_meldingen (account_id, reservering_id) SELECT ?, id FROM reserveringen WHERE id = ?',
+      [req.account.id, id]
+    );
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Melding verwijderen is niet gelukt.' });
+  }
+});
+
+// Alleen afgeronde reserveringen mogen weg: actieve houden voorraad vast of zijn nog bij een student.
+app.delete('/api/docent/reserveringen/afgerond', requireSession('docent'), async (_req, res) => {
+  try {
+    const [result] = await pool.query("DELETE FROM reserveringen WHERE status IN ('ingeleverd', 'geannuleerd')");
+    res.json({ verwijderd: result.affectedRows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Reserveringen verwijderen is niet gelukt.' });
+  }
+});
+
+app.delete('/api/docent/reserveringen/:id', requireSession('docent'), async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Ongeldige reservering.' });
+  try {
+    const [result] = await pool.execute(
+      "DELETE FROM reserveringen WHERE id = ? AND status IN ('ingeleverd', 'geannuleerd')",
+      [id]
+    );
+    if (!result.affectedRows) return res.status(409).json({ error: 'Alleen afgeronde reserveringen kunnen worden verwijderd.' });
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Reservering verwijderen is niet gelukt.' });
+  }
+});
+
+// Artikel meegeven aan de student: de voorraad is al verlaagd bij het reserveren.
+app.post('/api/docent/reserveringen/:id/uitgeven', requireSession('docent'), async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Ongeldige reservering.' });
+  try {
+    const [update] = await pool.execute(
+      "UPDATE reserveringen SET status = 'in_gebruik', uitgegeven_op = NOW() WHERE id = ? AND status = 'gereserveerd'",
+      [id]
+    );
+    if (!update.affectedRows) return res.status(409).json({ error: 'Deze reservering kan niet meer worden uitgegeven.' });
+    res.json({ id, status: 'in_gebruik' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Uitgeven is niet gelukt.' });
+  }
+});
+
+// Artikelen terug in het magazijn: status en voorraad worden samen bijgewerkt.
+// dateColumn komt alleen uit de routes hieronder, nooit uit het verzoek.
+async function returnToStock(res, { rawId, from, to, dateColumn, accountId, conflictError, failureError }) {
+  const id = Number(rawId);
+  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Ongeldige reservering.' });
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const [update] = await connection.execute(
+      `UPDATE reserveringen SET status = ?, ${dateColumn} = NOW()
+       WHERE id = ? AND status = ?${accountId ? ' AND account_id = ?' : ''}`,
+      accountId ? [to, id, from, accountId] : [to, id, from]
+    );
+    if (!update.affectedRows) {
+      await connection.rollback();
+      return res.status(409).json({ error: conflictError });
+    }
+    await connection.execute(
+      `UPDATE producten
+       INNER JOIN reserveringen ON reserveringen.product_id = producten.id
+       SET producten.aantal = producten.aantal + reserveringen.aantal
+       WHERE reserveringen.id = ?`,
+      [id]
+    );
+    await connection.commit();
+    res.json({ id, status: to });
+  } catch (err) {
+    await connection?.rollback();
+    console.error(err);
+    res.status(500).json({ error: failureError });
+  } finally {
+    connection?.release();
+  }
+}
+
+app.post('/api/docent/reserveringen/:id/inleveren', requireSession('docent'), (req, res) => returnToStock(res, {
+  rawId: req.params.id,
+  from: 'in_gebruik',
+  to: 'ingeleverd',
+  dateColumn: 'ingeleverd_op',
+  conflictError: 'Dit artikel is niet in gebruik.',
+  failureError: 'Inleveren is niet gelukt.',
+}));
+
+const CANCEL_CONFLICT = 'Deze reservering kan niet meer worden geannuleerd.';
+
+app.post('/api/docent/reserveringen/:id/annuleren', requireSession('docent'), (req, res) => returnToStock(res, {
+  rawId: req.params.id,
+  from: 'gereserveerd',
+  to: 'geannuleerd',
+  dateColumn: 'geannuleerd_op',
+  conflictError: CANCEL_CONFLICT,
+  failureError: 'Annuleren is niet gelukt.',
+}));
+
+// Studenten kunnen alleen hun eigen reservering annuleren
+app.post('/api/reserveringen/:id/annuleren', requireSession('student'), (req, res) => returnToStock(res, {
+  rawId: req.params.id,
+  from: 'gereserveerd',
+  to: 'geannuleerd',
+  dateColumn: 'geannuleerd_op',
+  accountId: req.account.id,
+  conflictError: CANCEL_CONFLICT,
+  failureError: 'Annuleren is niet gelukt.',
+}));
+
 app.get('/api/reserveringen', requireSession('student'), async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      'SELECT id, product_naam, aantal, eenheid, aangemaakt_op FROM reserveringen WHERE account_id = ? ORDER BY id DESC',
+      'SELECT id, product_naam, aantal, eenheid, aangemaakt_op, status FROM reserveringen WHERE account_id = ? ORDER BY id DESC',
       [req.account.id]
     );
     res.json(rows);

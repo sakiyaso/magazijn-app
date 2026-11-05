@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { NEW_RESERVATION_EVENT, describe } from './reservationNotifications';
+import { NEW_RESERVATION_EVENT, RESERVATIONS_REMOVED_EVENT, describe } from './reservationNotifications';
 import './NotificationBell.css';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
-const HISTORY_LIMIT = 20;
 
 function storageKey(accountId) {
   return `vistaflow-meldingen-gezien-${accountId}`;
@@ -46,16 +45,17 @@ function NotificationBell({ user }) {
 
   const loadItems = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/docent/reserveringen?limit=${HISTORY_LIMIT}`, {
+      const response = await fetch(`${API_URL}/api/docent/meldingen`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (!response.ok) return;
       const data = await response.json();
       setItems(data);
-      // Eerste keer op dit apparaat: bestaande reserveringen tellen als gelezen
+      // Eerste keer op dit apparaat: bestaande reserveringen tellen als gelezen.
+      // Ook terugzetten als de nieuwste weg is: na een MySQL-herstart kunnen id's opnieuw gebruikt worden.
       setLastSeen((current) => {
-        if (current !== null) return current;
         const newest = data[0]?.id ?? 0;
+        if (current !== null && current <= newest) return current;
         saveLastSeen(user.id, newest);
         return newest;
       });
@@ -67,9 +67,11 @@ function NotificationBell({ user }) {
   useEffect(() => {
     const timer = window.setTimeout(loadItems, 0);
     window.addEventListener(NEW_RESERVATION_EVENT, loadItems);
+    window.addEventListener(RESERVATIONS_REMOVED_EVENT, loadItems);
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener(NEW_RESERVATION_EVENT, loadItems);
+      window.removeEventListener(RESERVATIONS_REMOVED_EVENT, loadItems);
     };
   }, [loadItems]);
 
@@ -106,6 +108,19 @@ function NotificationBell({ user }) {
     setOpen(!open);
   };
 
+  const removeNotifications = async (path = '') => {
+    try {
+      const response = await fetch(`${API_URL}/api/docent/meldingen${path}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (!response.ok) throw new Error('Melding verwijderen is niet gelukt.');
+      await loadItems();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="notification-bell" ref={wrapperRef}>
       <button
@@ -126,10 +141,14 @@ function NotificationBell({ user }) {
         <div className="notification-panel" role="dialog" aria-label="Meldingen">
           <div className="notification-panel-header">
             <strong>Meldingen</strong>
-            <span>Laatste {HISTORY_LIMIT} reserveringen</span>
+            {items.length > 0 && (
+              <button className="notification-clear" type="button" onClick={() => removeNotifications()}>
+                Alles wissen
+              </button>
+            )}
           </div>
           {items.length === 0 ? (
-            <p className="notification-empty">Nog geen reserveringen.</p>
+            <p className="notification-empty">Geen meldingen.</p>
           ) : (
             <ul className="notification-list">
               {items.map((item) => (
@@ -139,6 +158,14 @@ function NotificationBell({ user }) {
                     <span>{describe(item)}</span>
                     <time dateTime={item.aangemaakt_op}>{timeAgo(item.aangemaakt_op)}</time>
                   </div>
+                  <button
+                    className="notification-remove"
+                    type="button"
+                    aria-label={`Melding verwijderen: ${describe(item)}`}
+                    onClick={() => removeNotifications(`/${item.id}`)}
+                  >
+                    ×
+                  </button>
                 </li>
               ))}
             </ul>
